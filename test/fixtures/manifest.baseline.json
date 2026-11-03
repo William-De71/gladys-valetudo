@@ -1,0 +1,259 @@
+{
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "options": []
+    },
+    {
+      "key": "mdns_discovery",
+      "type": "boolean",
+      "options": []
+    },
+    {
+      "key": "hosts",
+      "type": "string",
+      "options": []
+    },
+    {
+      "key": "auth",
+      "type": "section",
+      "options": []
+    },
+    {
+      "key": "username",
+      "type": "string",
+      "options": []
+    },
+    {
+      "key": "password",
+      "type": "secret",
+      "options": []
+    },
+    {
+      "key": "language",
+      "type": "select",
+      "options": ["en", "fr", "de", "es"]
+    },
+    {
+      "key": "help",
+      "type": "section",
+      "options": []
+    }
+  ],
+  "actions": ["test_connection"],
+  "widgets": [
+    {
+      "key": "robot",
+      "settings": ["device"]
+    },
+    {
+      "key": "map",
+      "settings": ["device"]
+    },
+    {
+      "key": "maintenance",
+      "settings": ["device"]
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "cleaning_started",
+      "fields": [
+        {
+          "key": "device",
+          "options": []
+        }
+      ],
+      "variables": [
+        {
+          "key": "name",
+          "type": "string"
+        },
+        {
+          "key": "mode",
+          "type": "string"
+        },
+        {
+          "key": "task",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "key": "cleaning_finished",
+      "fields": [
+        {
+          "key": "device",
+          "options": []
+        }
+      ],
+      "variables": [
+        {
+          "key": "name",
+          "type": "string"
+        },
+        {
+          "key": "status",
+          "type": "string"
+        },
+        {
+          "key": "area_m2",
+          "type": "number"
+        },
+        {
+          "key": "duration_min",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "key": "error",
+      "fields": [
+        {
+          "key": "device",
+          "options": []
+        }
+      ],
+      "variables": [
+        {
+          "key": "name",
+          "type": "string"
+        },
+        {
+          "key": "message",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "key": "attention_needed",
+      "fields": [
+        {
+          "key": "device",
+          "options": []
+        },
+        {
+          "key": "reason",
+          "options": [
+            "dustbin_full",
+            "consumable_depleted",
+            "mop_reminder",
+            "missing_resource",
+            "pending_map_change"
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "name",
+          "type": "string"
+        },
+        {
+          "key": "reason",
+          "type": "string"
+        },
+        {
+          "key": "message",
+          "type": "string"
+        },
+        {
+          "key": "consumable",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "key": "unreachable",
+      "fields": [
+        {
+          "key": "device",
+          "options": []
+        }
+      ],
+      "variables": [
+        {
+          "key": "name",
+          "type": "string"
+        },
+        {
+          "key": "host",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "key": "reachable_again",
+      "fields": [
+        {
+          "key": "device",
+          "options": []
+        }
+      ],
+      "variables": [
+        {
+          "key": "name",
+          "type": "string"
+        },
+        {
+          "key": "host",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "clean_rooms",
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "required": true
+        },
+        {
+          "key": "rooms",
+          "type": "string",
+          "required": true
+        },
+        {
+          "key": "iterations",
+          "type": "number",
+          "required": false
+        },
+        {
+          "key": "fan_speed",
+          "type": "select",
+          "required": false
+        },
+        {
+          "key": "water_usage",
+          "type": "select",
+          "required": false
+        }
+      ],
+      "outputs": [
+        {
+          "key": "rooms",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "key": "control",
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "required": true
+        },
+        {
+          "key": "command",
+          "type": "select",
+          "required": true
+        }
+      ],
+      "outputs": []
+    }
+  ]
+}

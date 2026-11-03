@@ -1,0 +1,92 @@
+[
+  {
+    "external_id": "ext:test-integration:device:smoothweakpigeon:state",
+    "category": "vacuum-cleaner",
+    "type": "state",
+    "unit": null,
+    "min": 0,
+    "max": 6,
+    "step": null
+  },
+  {
+    "external_id": "ext:test-integration:device:smoothweakpigeon:run_mode",
+    "category": "vacuum-cleaner",
+    "type": "run-mode",
+    "unit": null,
+    "min": 0,
+    "max": 2,
+    "step": null
+  },
+  {
+    "external_id": "ext:test-integration:device:smoothweakpigeon:dock",
+    "category": "vacuum-cleaner",
+    "type": "dock",
+    "unit": null,
+    "min": 0,
+    "max": 1,
+    "step": null
+  },
+  {
+    "external_id": "ext:test-integration:device:smoothweakpigeon:battery",
+    "category": "battery",
+    "type": "integer",
+    "unit": "percent",
+    "min": 0,
+    "max": 100,
+    "step": null
+  },
+  {
+    "external_id": "ext:test-integration:device:smoothweakpigeon:fan_speed",
+    "category": "text",
+    "type": "select",
+    "unit": null,
+    "min": 0,
+    "max": 0,
+    "step": null
+  },
+  {
+    "external_id": "ext:test-integration:device:smoothweakpigeon:water_usage",
+    "category": "text",
+    "type": "select",
+    "unit": null,
+    "min": 0,
+    "max": 0,
+    "step": null
+  },
+  {
+    "external_id": "ext:test-integration:device:smoothweakpigeon:operation_mode",
+    "category": "text",
+    "type": "select",
+    "unit": null,
+    "min": 0,
+    "max": 0,
+    "step": null
+  },
+  {
+    "external_id": "ext:test-integration:device:smoothweakpigeon:consumable_brush_main",
+    "category": "maintenance",
+    "type": "life-remaining",
+    "unit": "percent",
+    "min": 0,
+    "max": 100,
+    "step": null
+  },
+  {
+    "external_id": "ext:test-integration:device:smoothweakpigeon:consumable_brush_side_right",
+    "category": "maintenance",
+    "type": "life-remaining",
+    "unit": "percent",
+    "min": 0,
+    "max": 100,
+    "step": null
+  },
+  {
+    "external_id": "ext:test-integration:device:smoothweakpigeon:consumable_filter_main",
+    "category": "maintenance",
+    "type": "life-remaining",
+    "unit": "percent",
+    "min": 0,
+    "max": 100,
+    "step": null
+  }
+]

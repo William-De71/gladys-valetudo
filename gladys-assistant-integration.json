@@ -1,0 +1,950 @@
+{
+  "manifest_version": 1,
+  "type": "device",
+  "name": "Valetudo",
+  "description": {
+    "en": "Robot vacuums freed from the cloud by Valetudo: control, rooms, live map, consumables.",
+    "fr": "Aspirateurs robots libérés du cloud par Valetudo : pilotage, pièces, carte, consommables.",
+    "de": "Saugroboter ohne Cloud dank Valetudo: Steuerung, Räume, Live-Karte, Verschleißteile.",
+    "es": "Robots aspiradores sin nube gracias a Valetudo: control, habitaciones, mapa, consumibles."
+  },
+  "version": "0.1.0",
+  "docker_image": "ghcr.io/william-de71/gladys-valetudo:0.1.0",
+  "gladys_version": ">=5.3.0",
+  "cover_image": "https://raw.githubusercontent.com/William-De71/gladys-valetudo/main/cover.jpg",
+  "categories": ["appliances"],
+  "keywords": [
+    "robot vacuum",
+    "aspirateur robot",
+    "Saugroboter",
+    "Roborock",
+    "Dreame",
+    "Xiaomi",
+    "Viomi",
+    "Mi Robot",
+    "Cecotec",
+    "aspirador robot"
+  ],
+  "transports": ["local"],
+  "network_discovery": [{ "type": "mdns", "service": "_valetudo._tcp" }],
+  "actions": [
+    {
+      "key": "test_connection",
+      "timeout_seconds": 60,
+      "label": {
+        "en": "Search and test the robots",
+        "fr": "Rechercher et tester les robots",
+        "de": "Roboter suchen und testen",
+        "es": "Buscar y probar los robots"
+      },
+      "description": {
+        "en": "Searches again, then lists every Valetudo robot found with its address and whether it answers.",
+        "fr": "Relance la recherche, puis liste chaque robot Valetudo trouvé avec son adresse et s’il répond.",
+        "de": "Sucht erneut und listet dann jeden gefundenen Valetudo-Roboter mit seiner Adresse und seiner Erreichbarkeit auf.",
+        "es": "Vuelve a buscar y lista cada robot Valetudo encontrado con su dirección y si responde."
+      }
+    }
+  ],
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "Before you start",
+        "fr": "Avant de commencer",
+        "de": "Bevor du beginnst",
+        "es": "Antes de empezar"
+      },
+      "description": {
+        "en": "For robot vacuums running Valetudo (valetudo.cloud), the open firmware that replaces the manufacturer cloud. Gladys talks to the robot through its official local REST API: no account, nothing leaves your network. Install Valetudo on the robot first, then open the Discover tab.",
+        "fr": "Pour les aspirateurs robots sous Valetudo (valetudo.cloud), le micrologiciel libre qui remplace le cloud du fabricant. Gladys parle au robot par son API REST locale officielle : aucun compte, rien ne sort de votre réseau. Installez d’abord Valetudo sur le robot, puis ouvrez l’onglet Découverte.",
+        "de": "Für Saugroboter mit Valetudo (valetudo.cloud), der freien Firmware, die die Cloud des Herstellers ersetzt. Gladys spricht über die offizielle lokale REST-API mit dem Roboter: kein Konto, nichts verlässt dein Netzwerk. Installiere zuerst Valetudo auf dem Roboter und öffne dann den Tab Entdecken.",
+        "es": "Para robots aspiradores con Valetudo (valetudo.cloud), el firmware libre que sustituye la nube del fabricante. Gladys habla con el robot mediante su API REST local oficial: sin cuenta, nada sale de su red. Instale primero Valetudo en el robot y después abra la pestaña Descubrir."
+      }
+    },
+    {
+      "key": "mdns_discovery",
+      "type": "boolean",
+      "default": true,
+      "label": {
+        "en": "Find the robots automatically (mDNS)",
+        "fr": "Trouver les robots automatiquement (mDNS)",
+        "de": "Roboter automatisch finden (mDNS)",
+        "es": "Encontrar los robots automáticamente (mDNS)"
+      },
+      "description": {
+        "en": "Valetudo announces itself on the local network; Gladys listens for it. Turn it off to use the typed addresses only.",
+        "fr": "Valetudo s’annonce sur le réseau local ; Gladys l’écoute. Désactivez-la pour n’utiliser que les adresses saisies.",
+        "de": "Valetudo kündigt sich im lokalen Netzwerk an; Gladys hört darauf. Schalte das aus, um nur eingegebene Adressen zu nutzen.",
+        "es": "Valetudo se anuncia en la red local; Gladys lo escucha. Desactívelo para usar solo las direcciones escritas."
+      }
+    },
+    {
+      "key": "hosts",
+      "type": "string",
+      "default": "",
+      "label": {
+        "en": "Robot addresses (optional)",
+        "fr": "Adresses des robots (facultatif)",
+        "de": "Adressen der Roboter (optional)",
+        "es": "Direcciones de los robots (opcional)"
+      },
+      "placeholder": {
+        "en": "192.168.1.40",
+        "fr": "192.168.1.40",
+        "de": "192.168.1.40",
+        "es": "192.168.1.40"
+      },
+      "description": {
+        "en": "For a robot the automatic search does not reach (another network, mDNS off in Valetudo). IP address or name, with :port if needed; separate them with commas. Give the robot a fixed address in your router.",
+        "fr": "Pour un robot que la recherche automatique n’atteint pas (autre réseau, mDNS désactivé dans Valetudo). Adresse IP ou nom, avec :port si besoin ; séparez-les par des virgules. Donnez au robot une adresse fixe dans votre box.",
+        "de": "Für einen Roboter, den die automatische Suche nicht erreicht (anderes Netz, mDNS in Valetudo aus). IP-Adresse oder Name, bei Bedarf mit :Port; durch Kommas trennen. Gib dem Roboter im Router eine feste Adresse.",
+        "es": "Para un robot que la búsqueda automática no alcanza (otra red, mDNS desactivado en Valetudo). Dirección IP o nombre, con :puerto si hace falta; sepárelas con comas. Asigne al robot una dirección fija en su router."
+      }
+    },
+    {
+      "key": "auth",
+      "type": "section",
+      "label": {
+        "en": "Valetudo password (if set)",
+        "fr": "Mot de passe Valetudo (s’il est défini)",
+        "de": "Valetudo-Passwort (falls gesetzt)",
+        "es": "Contraseña de Valetudo (si la hay)"
+      },
+      "description": {
+        "en": "Only when HTTP authentication is on in Valetudo (Settings → Connectivity → Auth settings). The same user name and password are used for every robot.",
+        "fr": "Seulement si l’authentification HTTP est activée dans Valetudo (Paramètres → Connectivité → Auth settings). Le même nom d’utilisateur et le même mot de passe servent pour tous les robots.",
+        "de": "Nur wenn die HTTP-Authentifizierung in Valetudo aktiv ist (Einstellungen → Konnektivität → Auth settings). Derselbe Benutzername und dasselbe Passwort gelten für alle Roboter.",
+        "es": "Solo si la autenticación HTTP está activada en Valetudo (Ajustes → Conectividad → Auth settings). Se usan el mismo usuario y la misma contraseña para todos los robots."
+      }
+    },
+    {
+      "key": "username",
+      "type": "string",
+      "default": "",
+      "label": {
+        "en": "User name",
+        "fr": "Nom d’utilisateur",
+        "de": "Benutzername",
+        "es": "Usuario"
+      }
+    },
+    {
+      "key": "password",
+      "type": "secret",
+      "label": {
+        "en": "Password",
+        "fr": "Mot de passe",
+        "de": "Passwort",
+        "es": "Contraseña"
+      }
+    },
+    {
+      "key": "language",
+      "type": "select",
+      "default": "en",
+      "label": {
+        "en": "Language of the device texts",
+        "fr": "Langue des textes des appareils",
+        "de": "Sprache der Gerätetexte",
+        "es": "Idioma de los textos de los dispositivos"
+      },
+      "description": {
+        "en": "Feature and option names in the Discover tab, messages of the scene triggers and errors of the scene actions. Gladys does not send your language with them.",
+        "fr": "Noms des fonctionnalités et des options dans l’onglet Découverte, messages des déclencheurs et erreurs des actions de scène. Gladys n’envoie pas votre langue avec eux.",
+        "de": "Namen der Funktionen und Optionen im Tab Entdecken, Meldungen der Auslöser und Fehler der Szenenaktionen. Gladys sendet deine Sprache nicht mit.",
+        "es": "Nombres de las funciones y opciones en la pestaña Descubrir, mensajes de los disparadores y errores de las acciones de escena. Gladys no envía su idioma con ellos."
+      },
+      "options": [
+        {
+          "value": "en",
+          "label": { "en": "English", "fr": "Anglais", "de": "Englisch", "es": "Inglés" }
+        },
+        {
+          "value": "fr",
+          "label": { "en": "French", "fr": "Français", "de": "Französisch", "es": "Francés" }
+        },
+        {
+          "value": "de",
+          "label": { "en": "German", "fr": "Allemand", "de": "Deutsch", "es": "Alemán" }
+        },
+        {
+          "value": "es",
+          "label": { "en": "Spanish", "fr": "Espagnol", "de": "Spanisch", "es": "Español" }
+        }
+      ]
+    },
+    {
+      "key": "help",
+      "type": "section",
+      "label": {
+        "en": "A robot is not found?",
+        "fr": "Un robot n’est pas trouvé ?",
+        "de": "Ein Roboter wird nicht gefunden?",
+        "es": "¿No se encuentra un robot?"
+      },
+      "description": {
+        "en": "Check that the robot is on its dock and on the same network as Gladys, that the Valetudo page opens in a browser at its address, then type that address in the field above and use “Search and test the robots”.",
+        "fr": "Vérifiez que le robot est sur sa base et sur le même réseau que Gladys, que la page Valetudo s’ouvre dans un navigateur à son adresse, puis saisissez cette adresse dans le champ ci-dessus et utilisez « Rechercher et tester les robots ».",
+        "de": "Prüfe, ob der Roboter in seiner Station und im selben Netzwerk wie Gladys ist und ob sich die Valetudo-Seite unter seiner Adresse im Browser öffnet; gib dann diese Adresse oben ein und nutze „Roboter suchen und testen“.",
+        "es": "Compruebe que el robot está en su base y en la misma red que Gladys, y que la página de Valetudo se abre en un navegador en su dirección; luego escriba esa dirección en el campo de arriba y use «Buscar y probar los robots»."
+      }
+    }
+  ],
+  "widgets": [
+    {
+      "key": "robot",
+      "icon": "disc",
+      "action_timeout_seconds": 30,
+      "label": {
+        "en": "Robot vacuum",
+        "fr": "Aspirateur robot",
+        "de": "Saugroboter",
+        "es": "Robot aspirador"
+      },
+      "description": {
+        "en": "State, battery and current run of a robot, with start, pause, dock, locate and room cleaning.",
+        "fr": "État, batterie et nettoyage en cours d’un robot, avec démarrer, pause, base, localiser et pièce.",
+        "de": "Zustand, Akku und laufende Reinigung eines Roboters, mit Start, Pause, Station, Orten und Raum.",
+        "es": "Estado, batería y limpieza en curso de un robot, con iniciar, pausa, base, localizar y habitación."
+      },
+      "settings": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "required": true,
+          "label": { "en": "Robot", "fr": "Robot", "de": "Roboter", "es": "Robot" }
+        }
+      ]
+    },
+    {
+      "key": "map",
+      "icon": "map",
+      "label": {
+        "en": "Robot map",
+        "fr": "Carte du robot",
+        "de": "Roboterkarte",
+        "es": "Mapa del robot"
+      },
+      "description": {
+        "en": "The live map of a robot: rooms, walls, path, robot and dock, the room being cleaned highlighted.",
+        "fr": "La carte en direct d’un robot : pièces, murs, trajet, robot et base, pièce en cours en surbrillance.",
+        "de": "Die Live-Karte eines Roboters: Räume, Wände, Weg, Roboter und Station, aktueller Raum hervorgehoben.",
+        "es": "Mapa en directo de un robot: habitaciones, recorrido, robot y base, habitación en curso resaltada."
+      },
+      "settings": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "required": true,
+          "label": { "en": "Robot", "fr": "Robot", "de": "Roboter", "es": "Robot" }
+        }
+      ]
+    },
+    {
+      "key": "maintenance",
+      "icon": "tool",
+      "action_timeout_seconds": 30,
+      "label": {
+        "en": "Robot maintenance",
+        "fr": "Entretien du robot",
+        "de": "Roboterwartung",
+        "es": "Mantenimiento del robot"
+      },
+      "description": {
+        "en": "Consumables of a robot (brushes, filter, mop…), their remaining life, statistics and a reset.",
+        "fr": "Consommables d’un robot (brosses, filtre…), leur durée restante, statistiques et remise à zéro.",
+        "de": "Verschleißteile eines Roboters (Bürsten, Filter…) mit Restlaufzeit, Statistik und Zurücksetzen.",
+        "es": "Consumibles de un robot (cepillos, filtro, mopa…) con su vida restante, estadísticas y reinicio."
+      },
+      "settings": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "required": true,
+          "label": { "en": "Robot", "fr": "Robot", "de": "Roboter", "es": "Robot" }
+        }
+      ]
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "cleaning_started",
+      "label": {
+        "en": "Robot vacuum: cleaning started",
+        "fr": "Aspirateur robot : nettoyage démarré",
+        "de": "Saugroboter: Reinigung gestartet",
+        "es": "Robot aspirador: limpieza iniciada"
+      },
+      "description": {
+        "en": "A robot starts a cleaning run or a mapping pass (resuming after a pause does not count).",
+        "fr": "Un robot démarre un nettoyage ou une cartographie (la reprise après une pause ne compte pas).",
+        "de": "Ein Roboter startet eine Reinigung oder eine Kartierung (Fortsetzen nach einer Pause zählt nicht).",
+        "es": "Un robot inicia una limpieza o una cartografía (reanudar tras una pausa no cuenta)."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": { "en": "Robot", "fr": "Robot", "de": "Roboter", "es": "Robot" },
+          "description": {
+            "en": "Leave empty for any robot.",
+            "fr": "Laissez vide pour n’importe quel robot.",
+            "de": "Leer lassen für jeden Roboter.",
+            "es": "Déjelo vacío para cualquier robot."
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "name",
+          "type": "string",
+          "label": {
+            "en": "Device name",
+            "fr": "Nom de l’appareil",
+            "de": "Gerätename",
+            "es": "Nombre del dispositivo"
+          }
+        },
+        {
+          "key": "mode",
+          "type": "string",
+          "label": {
+            "en": "Mode (cleaning or mapping)",
+            "fr": "Mode (cleaning ou mapping)",
+            "de": "Modus (cleaning oder mapping)",
+            "es": "Modo (cleaning o mapping)"
+          }
+        },
+        {
+          "key": "task",
+          "type": "string",
+          "label": {
+            "en": "Task (segment, zone, spot, none…)",
+            "fr": "Tâche (segment, zone, spot, none…)",
+            "de": "Aufgabe (segment, zone, spot, none…)",
+            "es": "Tarea (segment, zone, spot, none…)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "cleaning_finished",
+      "label": {
+        "en": "Robot vacuum: cleaning finished",
+        "fr": "Aspirateur robot : nettoyage terminé",
+        "de": "Saugroboter: Reinigung beendet",
+        "es": "Robot aspirador: limpieza terminada"
+      },
+      "description": {
+        "en": "A run ends without an error: the robot heads back, docks or stops. A pause is not an end.",
+        "fr": "Un nettoyage se termine sans erreur : le robot rentre, se pose sur sa base ou s’arrête. Une pause n’est pas une fin.",
+        "de": "Eine Reinigung endet ohne Fehler: Der Roboter fährt zurück, dockt an oder hält an. Eine Pause ist kein Ende.",
+        "es": "Una limpieza termina sin error: el robot vuelve, se acopla a su base o se detiene. Una pausa no es un final."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": { "en": "Robot", "fr": "Robot", "de": "Roboter", "es": "Robot" },
+          "description": {
+            "en": "Leave empty for any robot.",
+            "fr": "Laissez vide pour n’importe quel robot.",
+            "de": "Leer lassen für jeden Roboter.",
+            "es": "Déjelo vacío para cualquier robot."
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "name",
+          "type": "string",
+          "label": {
+            "en": "Device name",
+            "fr": "Nom de l’appareil",
+            "de": "Gerätename",
+            "es": "Nombre del dispositivo"
+          }
+        },
+        {
+          "key": "status",
+          "type": "string",
+          "label": {
+            "en": "Status (returning, docked, idle)",
+            "fr": "État (returning, docked, idle)",
+            "de": "Zustand (returning, docked, idle)",
+            "es": "Estado (returning, docked, idle)"
+          }
+        },
+        {
+          "key": "area_m2",
+          "type": "number",
+          "label": {
+            "en": "Cleaned area (m²)",
+            "fr": "Surface nettoyée (m²)",
+            "de": "Gereinigte Fläche (m²)",
+            "es": "Superficie limpiada (m²)"
+          }
+        },
+        {
+          "key": "duration_min",
+          "type": "number",
+          "label": {
+            "en": "Duration (minutes)",
+            "fr": "Durée (minutes)",
+            "de": "Dauer (Minuten)",
+            "es": "Duración (minutos)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "error",
+      "label": {
+        "en": "Robot vacuum: error",
+        "fr": "Aspirateur robot : erreur",
+        "de": "Saugroboter: Fehler",
+        "es": "Robot aspirador: error"
+      },
+      "description": {
+        "en": "A robot enters its error state (stuck, wheel lifted, brush blocked…), with the message of the robot.",
+        "fr": "Un robot passe en erreur (coincé, roue soulevée, brosse bloquée…), avec le message du robot.",
+        "de": "Ein Roboter geht in den Fehlerzustand (festgefahren, Rad angehoben, Bürste blockiert…), mit der Meldung des Roboters.",
+        "es": "Un robot entra en error (atascado, rueda levantada, cepillo bloqueado…), con el mensaje del robot."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": { "en": "Robot", "fr": "Robot", "de": "Roboter", "es": "Robot" },
+          "description": {
+            "en": "Leave empty for any robot.",
+            "fr": "Laissez vide pour n’importe quel robot.",
+            "de": "Leer lassen für jeden Roboter.",
+            "es": "Déjelo vacío para cualquier robot."
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "name",
+          "type": "string",
+          "label": {
+            "en": "Device name",
+            "fr": "Nom de l’appareil",
+            "de": "Gerätename",
+            "es": "Nombre del dispositivo"
+          }
+        },
+        {
+          "key": "message",
+          "type": "string",
+          "label": {
+            "en": "Error message",
+            "fr": "Message d’erreur",
+            "de": "Fehlermeldung",
+            "es": "Mensaje de error"
+          }
+        }
+      ]
+    },
+    {
+      "key": "attention_needed",
+      "label": {
+        "en": "Robot vacuum: needs attention",
+        "fr": "Aspirateur robot : demande votre attention",
+        "de": "Saugroboter: braucht Aufmerksamkeit",
+        "es": "Robot aspirador: requiere atención"
+      },
+      "description": {
+        "en": "Valetudo asks for you: dust bin full, consumable worn out, mop pad to attach, something missing (water tank…), map change to accept.",
+        "fr": "Valetudo vous sollicite : bac plein, consommable usé, serpillière à mettre, élément manquant (réservoir…), changement de carte à accepter.",
+        "de": "Valetudo braucht dich: Staubbehälter voll, Verbrauchsteil verschlissen, Wischpad anbringen, etwas fehlt (Wassertank…), Kartenänderung bestätigen.",
+        "es": "Valetudo le necesita: depósito lleno, consumible gastado, mopa que colocar, algo que falta (depósito de agua…), cambio de mapa que aceptar."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": { "en": "Robot", "fr": "Robot", "de": "Roboter", "es": "Robot" },
+          "description": {
+            "en": "Leave empty for any robot.",
+            "fr": "Laissez vide pour n’importe quel robot.",
+            "de": "Leer lassen für jeden Roboter.",
+            "es": "Déjelo vacío para cualquier robot."
+          }
+        },
+        {
+          "key": "reason",
+          "type": "select",
+          "required": false,
+          "label": { "en": "Reason", "fr": "Motif", "de": "Grund", "es": "Motivo" },
+          "description": {
+            "en": "Leave empty for any reason.",
+            "fr": "Laissez vide pour n’importe quel motif.",
+            "de": "Leer lassen für jeden Grund.",
+            "es": "Déjelo vacío para cualquier motivo."
+          },
+          "options": [
+            {
+              "value": "dustbin_full",
+              "label": {
+                "en": "Dust bin full",
+                "fr": "Bac à poussière plein",
+                "de": "Staubbehälter voll",
+                "es": "Depósito de polvo lleno"
+              }
+            },
+            {
+              "value": "consumable_depleted",
+              "label": {
+                "en": "Consumable worn out",
+                "fr": "Consommable usé",
+                "de": "Verbrauchsteil verschlissen",
+                "es": "Consumible gastado"
+              }
+            },
+            {
+              "value": "mop_reminder",
+              "label": {
+                "en": "Mop pad reminder",
+                "fr": "Rappel serpillière",
+                "de": "Wischpad-Erinnerung",
+                "es": "Recordatorio de mopa"
+              }
+            },
+            {
+              "value": "missing_resource",
+              "label": {
+                "en": "Something missing",
+                "fr": "Élément manquant",
+                "de": "Etwas fehlt",
+                "es": "Algo falta"
+              }
+            },
+            {
+              "value": "pending_map_change",
+              "label": {
+                "en": "Map change to accept",
+                "fr": "Changement de carte à accepter",
+                "de": "Kartenänderung bestätigen",
+                "es": "Cambio de mapa que aceptar"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "name",
+          "type": "string",
+          "label": {
+            "en": "Device name",
+            "fr": "Nom de l’appareil",
+            "de": "Gerätename",
+            "es": "Nombre del dispositivo"
+          }
+        },
+        {
+          "key": "reason",
+          "type": "string",
+          "label": { "en": "Reason", "fr": "Motif", "de": "Grund", "es": "Motivo" }
+        },
+        {
+          "key": "message",
+          "type": "string",
+          "label": { "en": "Message", "fr": "Message", "de": "Meldung", "es": "Mensaje" }
+        },
+        {
+          "key": "consumable",
+          "type": "string",
+          "label": {
+            "en": "Consumable",
+            "fr": "Consommable",
+            "de": "Verbrauchsteil",
+            "es": "Consumible"
+          }
+        }
+      ]
+    },
+    {
+      "key": "unreachable",
+      "label": {
+        "en": "Robot vacuum: not answering",
+        "fr": "Aspirateur robot : ne répond plus",
+        "de": "Saugroboter: antwortet nicht mehr",
+        "es": "Robot aspirador: deja de responder"
+      },
+      "description": {
+        "en": "A robot stopped answering on the local network (twice in a row): off, Wi-Fi lost, stuck far from the box.",
+        "fr": "Un robot ne répond plus sur le réseau local (deux fois de suite) : éteint, Wi-Fi perdu, coincé loin de la box.",
+        "de": "Ein Roboter antwortet im lokalen Netzwerk nicht mehr (zweimal hintereinander): aus, WLAN verloren, weit vom Router festgefahren.",
+        "es": "Un robot deja de responder en la red local (dos veces seguidas): apagado, wifi perdido, atascado lejos del router."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": { "en": "Robot", "fr": "Robot", "de": "Roboter", "es": "Robot" },
+          "description": {
+            "en": "Leave empty for any robot.",
+            "fr": "Laissez vide pour n’importe quel robot.",
+            "de": "Leer lassen für jeden Roboter.",
+            "es": "Déjelo vacío para cualquier robot."
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "name",
+          "type": "string",
+          "label": {
+            "en": "Device name",
+            "fr": "Nom de l’appareil",
+            "de": "Gerätename",
+            "es": "Nombre del dispositivo"
+          }
+        },
+        {
+          "key": "host",
+          "type": "string",
+          "label": {
+            "en": "Address",
+            "fr": "Adresse",
+            "de": "Adresse",
+            "es": "Dirección"
+          }
+        }
+      ]
+    },
+    {
+      "key": "reachable_again",
+      "label": {
+        "en": "Robot vacuum: answering again",
+        "fr": "Aspirateur robot : répond de nouveau",
+        "de": "Saugroboter: antwortet wieder",
+        "es": "Robot aspirador: vuelve a responder"
+      },
+      "description": {
+        "en": "A robot answers again after not answering.",
+        "fr": "Un robot répond de nouveau après une coupure.",
+        "de": "Ein Roboter antwortet wieder, nachdem er nicht geantwortet hat.",
+        "es": "Un robot vuelve a responder tras no hacerlo."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": { "en": "Robot", "fr": "Robot", "de": "Roboter", "es": "Robot" },
+          "description": {
+            "en": "Leave empty for any robot.",
+            "fr": "Laissez vide pour n’importe quel robot.",
+            "de": "Leer lassen für jeden Roboter.",
+            "es": "Déjelo vacío para cualquier robot."
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "name",
+          "type": "string",
+          "label": {
+            "en": "Device name",
+            "fr": "Nom de l’appareil",
+            "de": "Gerätename",
+            "es": "Nombre del dispositivo"
+          }
+        },
+        {
+          "key": "host",
+          "type": "string",
+          "label": {
+            "en": "Address",
+            "fr": "Adresse",
+            "de": "Adresse",
+            "es": "Dirección"
+          }
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "clean_rooms",
+      "timeout_seconds": 30,
+      "label": {
+        "en": "Clean rooms with a robot vacuum",
+        "fr": "Nettoyer des pièces avec un aspirateur robot",
+        "de": "Räume mit einem Saugroboter reinigen",
+        "es": "Limpiar habitaciones con un robot aspirador"
+      },
+      "description": {
+        "en": "Cleans the rooms named, in this order when the robot supports it, after setting the suction and water if chosen.",
+        "fr": "Nettoie les pièces nommées, dans cet ordre si le robot le permet, après avoir réglé l’aspiration et l’eau si elles sont choisies.",
+        "de": "Reinigt die genannten Räume, in dieser Reihenfolge, wenn der Roboter es kann, nachdem Saugkraft und Wasser eingestellt wurden, falls gewählt.",
+        "es": "Limpia las habitaciones indicadas, en este orden si el robot lo permite, tras ajustar la aspiración y el agua si se eligen."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "required": true,
+          "label": { "en": "Robot", "fr": "Robot", "de": "Roboter", "es": "Robot" }
+        },
+        {
+          "key": "rooms",
+          "type": "string",
+          "required": true,
+          "label": {
+            "en": "Rooms",
+            "fr": "Pièces",
+            "de": "Räume",
+            "es": "Habitaciones"
+          },
+          "placeholder": {
+            "en": "Kitchen, Living room",
+            "fr": "Cuisine, Salon",
+            "de": "Küche, Wohnzimmer",
+            "es": "Cocina, Salón"
+          },
+          "description": {
+            "en": "Names given in Valetudo (accents and case ignored) or room numbers, separated by commas.",
+            "fr": "Noms donnés dans Valetudo (accents et majuscules ignorés) ou numéros des pièces, séparés par des virgules.",
+            "de": "In Valetudo vergebene Namen (Akzente und Groß-/Kleinschreibung egal) oder Raumnummern, durch Kommas getrennt.",
+            "es": "Nombres dados en Valetudo (sin tener en cuenta acentos ni mayúsculas) o números de habitación, separados por comas."
+          }
+        },
+        {
+          "key": "iterations",
+          "type": "number",
+          "required": false,
+          "default": 1,
+          "min": 1,
+          "max": 3,
+          "label": {
+            "en": "Passes",
+            "fr": "Passages",
+            "de": "Durchgänge",
+            "es": "Pasadas"
+          },
+          "description": {
+            "en": "Limited to what the robot accepts.",
+            "fr": "Limité à ce que le robot accepte.",
+            "de": "Begrenzt auf das, was der Roboter annimmt.",
+            "es": "Limitado a lo que acepta el robot."
+          }
+        },
+        {
+          "key": "fan_speed",
+          "type": "select",
+          "required": false,
+          "label": {
+            "en": "Suction (optional)",
+            "fr": "Aspiration (facultatif)",
+            "de": "Saugkraft (optional)",
+            "es": "Aspiración (opcional)"
+          },
+          "description": {
+            "en": "Empty keeps the current suction.",
+            "fr": "Vide garde l’aspiration actuelle.",
+            "de": "Leer behält die aktuelle Saugkraft.",
+            "es": "Vacío mantiene la aspiración actual."
+          },
+          "options": [
+            {
+              "value": "off",
+              "label": { "en": "Off", "fr": "Arrêt", "de": "Aus", "es": "Apagado" }
+            },
+            {
+              "value": "min",
+              "label": { "en": "Minimum", "fr": "Minimum", "de": "Minimum", "es": "Mínimo" }
+            },
+            {
+              "value": "low",
+              "label": { "en": "Low", "fr": "Faible", "de": "Niedrig", "es": "Bajo" }
+            },
+            {
+              "value": "medium",
+              "label": { "en": "Medium", "fr": "Moyen", "de": "Mittel", "es": "Medio" }
+            },
+            {
+              "value": "high",
+              "label": { "en": "High", "fr": "Fort", "de": "Hoch", "es": "Alto" }
+            },
+            {
+              "value": "max",
+              "label": { "en": "Maximum", "fr": "Maximum", "de": "Maximum", "es": "Máximo" }
+            },
+            {
+              "value": "turbo",
+              "label": { "en": "Turbo", "fr": "Turbo", "de": "Turbo", "es": "Turbo" }
+            }
+          ]
+        },
+        {
+          "key": "water_usage",
+          "type": "select",
+          "required": false,
+          "label": {
+            "en": "Water (optional)",
+            "fr": "Eau (facultatif)",
+            "de": "Wasser (optional)",
+            "es": "Agua (opcional)"
+          },
+          "description": {
+            "en": "Mopping robots only. Empty keeps the current setting.",
+            "fr": "Robots laveurs seulement. Vide garde le réglage actuel.",
+            "de": "Nur Wischroboter. Leer behält die aktuelle Einstellung.",
+            "es": "Solo robots friegasuelos. Vacío mantiene el ajuste actual."
+          },
+          "options": [
+            {
+              "value": "off",
+              "label": { "en": "Off", "fr": "Arrêt", "de": "Aus", "es": "Apagado" }
+            },
+            {
+              "value": "min",
+              "label": { "en": "Minimum", "fr": "Minimum", "de": "Minimum", "es": "Mínimo" }
+            },
+            {
+              "value": "low",
+              "label": { "en": "Low", "fr": "Faible", "de": "Niedrig", "es": "Bajo" }
+            },
+            {
+              "value": "medium",
+              "label": { "en": "Medium", "fr": "Moyen", "de": "Mittel", "es": "Medio" }
+            },
+            {
+              "value": "high",
+              "label": { "en": "High", "fr": "Fort", "de": "Hoch", "es": "Alto" }
+            },
+            {
+              "value": "max",
+              "label": { "en": "Maximum", "fr": "Maximum", "de": "Maximum", "es": "Máximo" }
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "key": "rooms",
+          "type": "string",
+          "label": {
+            "en": "Rooms sent",
+            "fr": "Pièces envoyées",
+            "de": "Gesendete Räume",
+            "es": "Habitaciones enviadas"
+          }
+        }
+      ]
+    },
+    {
+      "key": "control",
+      "timeout_seconds": 20,
+      "label": {
+        "en": "Control a robot vacuum",
+        "fr": "Piloter un aspirateur robot",
+        "de": "Saugroboter steuern",
+        "es": "Controlar un robot aspirador"
+      },
+      "description": {
+        "en": "Start, pause, stop, send back to the dock, locate, or run a dock function (empty the bin, wash or dry the mop).",
+        "fr": "Démarrer, mettre en pause, arrêter, renvoyer à la base, localiser, ou lancer une fonction de la station (vider le bac, laver ou sécher la serpillière).",
+        "de": "Starten, pausieren, stoppen, zur Station schicken, orten oder eine Stationsfunktion starten (Behälter leeren, Wischpad waschen oder trocknen).",
+        "es": "Iniciar, pausar, detener, enviar a la base, localizar o lanzar una función de la base (vaciar el depósito, lavar o secar la mopa)."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "required": true,
+          "label": { "en": "Robot", "fr": "Robot", "de": "Roboter", "es": "Robot" }
+        },
+        {
+          "key": "command",
+          "type": "select",
+          "required": true,
+          "default": "start",
+          "label": { "en": "Command", "fr": "Commande", "de": "Befehl", "es": "Orden" },
+          "options": [
+            {
+              "value": "start",
+              "label": {
+                "en": "Start (or resume)",
+                "fr": "Démarrer (ou reprendre)",
+                "de": "Starten (oder fortsetzen)",
+                "es": "Iniciar (o reanudar)"
+              }
+            },
+            {
+              "value": "pause",
+              "label": { "en": "Pause", "fr": "Pause", "de": "Pause", "es": "Pausa" }
+            },
+            {
+              "value": "stop",
+              "label": { "en": "Stop", "fr": "Arrêter", "de": "Stoppen", "es": "Detener" }
+            },
+            {
+              "value": "home",
+              "label": {
+                "en": "Back to the dock",
+                "fr": "Retour à la base",
+                "de": "Zurück zur Station",
+                "es": "Volver a la base"
+              }
+            },
+            {
+              "value": "locate",
+              "label": { "en": "Locate", "fr": "Localiser", "de": "Orten", "es": "Localizar" }
+            },
+            {
+              "value": "auto_empty",
+              "label": {
+                "en": "Empty the bin at the dock",
+                "fr": "Vider le bac dans la station",
+                "de": "Behälter in der Station leeren",
+                "es": "Vaciar el depósito en la base"
+              }
+            },
+            {
+              "value": "mop_dock_clean",
+              "label": {
+                "en": "Wash the mop at the dock",
+                "fr": "Laver la serpillière à la station",
+                "de": "Wischpad in der Station waschen",
+                "es": "Lavar la mopa en la base"
+              }
+            },
+            {
+              "value": "mop_dock_dry",
+              "label": {
+                "en": "Dry the mop at the dock",
+                "fr": "Sécher la serpillière à la station",
+                "de": "Wischpad in der Station trocknen",
+                "es": "Secar la mopa en la base"
+              }
+            }
+          ]
+        }
+      ],
+      "outputs": []
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+Gladys Valetudo integration
+Copyright 2026 William-De71
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+It drives robot vacuums running Valetudo (https://valetudo.cloud) through the
+official REST API Valetudo serves on the local network. Nothing is sent to the
+Internet.
+
+This product includes material from the Valetudo project
+(https://github.com/Hypfer/Valetudo), licensed under the Apache License,
+Version 2.0:
+  - test/fixtures/map.json, a map of its test suite
+    (backend/test/lib/robots/dreame/res/map/d9_1058_with_custom_named_segments.json);
+  - the Valetudo logo used in the cover image (assets/logo/valetudo_logo_small.svg).
+No Valetudo code was copied: the client follows the routes and entities of
+its REST API.
+
+Valetudo is not affiliated with this project, which is neither endorsed nor
+sponsored by it. Roborock, Dreame, Xiaomi, Viomi and Cecotec are trademarks of
+their owners.
